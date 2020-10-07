@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include "LinkedList.h"
 
 using namespace std;
 
@@ -13,15 +14,32 @@ public:
 	~MathFormat();
 
 	//function to check string for any math errors
-	bool errorCheck(string);
+	int errorCheck(string);
+
+	//function to remove all spaces from string, and returns wether valid or not.
+	bool removeSpaces(string*);
 
 	//function to correctly add parenthesis to a math forumla in order to forgoe oder of operation
 	string parenthesize(string);
 
 private:
-	string listOfValidCharacters = "0123456789()[]{}*+-/. ";
+	
+	
+	string listOfNumbers = "0123456789";
+	string listOfValidOperations = "+-*/^%";
+	string leftParenthesis = "([{";
+	string rightParenthesis = "}])";
+	string listOfParenthesis = leftParenthesis + rightParenthesis;
+	string listOfNumbersParenthesis = listOfNumbers + listOfParenthesis;
+	string listOfOperationNumbers = listOfNumbers + listOfValidOperations;
+	string listOfOperationsParenthesis = listOfValidOperations + listOfParenthesis;
+	string listOfValidCharacters = listOfValidOperations + listOfParenthesis + listOfNumbers + ". ";
+
+	bool charInString(char, string);
 
 	bool validCharacters(string);
+	bool matchingParenthesis(string);
+	bool validOperations(string);
 };
 
 #endif // !MATHFORMAT_H

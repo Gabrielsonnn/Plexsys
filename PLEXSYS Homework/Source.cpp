@@ -9,6 +9,7 @@ using namespace std;
 /*TODO:
 -secondary way of multiplication?? 2(4+5)
 -dealing with floats
+-specific char for where error occured.
 
  */
 
@@ -21,19 +22,25 @@ int main() {
 
 	//declares string pointer to hold input of math equation
 	string mathInput;
+	while(1) {
+		//uses io class to get input from user and stores it in math input
+		IO.Inputstr(&mathInput, "Please input the math eqution you would like solved?\n");
 
-	//uses io class to get input from user and stores it in math input
-	IO.Inputstr(&mathInput, "Please input the math eqution you would like solved?\n");
+		int correct = -4;
 
-	bool correct = MF.errorCheck(mathInput);
+		if (MF.removeSpaces(&mathInput)) {
 
-	/*BinaryTree<int> bt;
+			 correct = MF.errorCheck(mathInput);
+		}
 
-	bt.insertNode(5);
-	bt.insertNode(0);
+		/*BinaryTree<int> bt;
 
-	bt.preorderPrint();*/
+		bt.insertNode(5);
+		bt.insertNode(0);
 
+		bt.preorderPrint();*/
 
-	cout << "Ouput: " << correct;
+		cout << "Input: " << mathInput << endl;
+		cout << "Ouput: " << correct << endl;
+	}
 }
