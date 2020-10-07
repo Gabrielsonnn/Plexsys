@@ -21,7 +21,6 @@ public:
 		next = n;
 		prev = p;
 	}
-
 };
 
 template<class T>

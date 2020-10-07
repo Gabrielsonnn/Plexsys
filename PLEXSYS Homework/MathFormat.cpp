@@ -54,7 +54,7 @@ bool MathFormat::validCharacters(string mathInput) {
 	return true;
 }
 
-//determines if all parenthesis are matching
+//determines if all parenthesis are matching and that there are no empty braces
 bool MathFormat::matchingParenthesis(string mathInput) {
 	
 	//instantiates doubly linked list
@@ -62,6 +62,7 @@ bool MathFormat::matchingParenthesis(string mathInput) {
 	
 	//declares chars to hold values
 	char ch, chTmp;
+	char chLast = ' ';
 
 	//declares bool for flaggin if error or not
 	bool error = false;
@@ -76,6 +77,7 @@ bool MathFormat::matchingParenthesis(string mathInput) {
 			DL.addTail(ch);
 		}
 		else if (ch == ')' || ch == ']' || ch == '}') {
+			
 			//removes parenthesis from stack to verify correct order
 			//if stack is not empty continue
 			if (!DL.isEmpty()) {
@@ -110,8 +112,36 @@ bool MathFormat::matchingParenthesis(string mathInput) {
 			else {//else stack is empty
 				return false;//returns error (Mismatched braces)
 			}
+
+			//assume no error for empty brace check
+			error = false;
+
+			//switch statement to verify there are no empty braces
+			switch (chLast) {
+			case '(':
+				if (ch == ')')
+					error = true;//error, last char and current char are matching, thus empty braces
+				break;
+
+			case '[':
+				if (ch == ']')
+					error = true;//errror, last char and current char are matching, thus empty braces
+				break;
+
+			case '{':
+				if (ch == '}')
+					error = true;//error, last char and current char are matching, thus empty braces
+				break;
+			}
+
+			if (error == true) {
+				return false;//returns error (Empty Braces)
+			}
 		}
 		else;//do nothing for other characters
+
+		//set ch last to ch to maintain what the last char was to check for empty braces
+		chLast = ch;
 	}
 	//if stack is empty after end of string return success
 	if (DL.isEmpty())
@@ -287,7 +317,179 @@ bool MathFormat::charInString(char inchar, string instring) {
 	return false;
 }
 
-string MathFormat::parenthesize(string)
+
+//adds parenthesis to all operations within math input based on order of operation.
+string MathFormat::parenthesize(string mathInput)
 {
-	return string();
+
+	//go through list of operators, which is listed in order of operation
+	for (int i = 0; i < listOfValidOperations.length(); i++) {
+
+		//loop through math input searching for current math operation
+		for (int j = 0; j < mathInput.length(); j++) {
+
+			//if matching operation for current operator, add parenthesis
+			if (listOfValidOperations[i] == mathInput[j]) {
+
+				//first check left
+				int left = j - 1;
+				while (left >= 0) {
+					
+					//if next character is a number, add parenthesis to left
+					if (charInString(mathInput[left], listOfNumbers)){
+						
+						//decrement left to check value next to found number
+						left--;
+						
+						//keep checking left to see if number continues
+						while (left >= 0) {
+
+							//if next char is not in list of numbers or decimal, break
+							if (!charInString(mathInput[left], listOfNumbers + ".")) {
+								break;
+							}
+
+							//move to next char
+							left--;
+						}
+						
+						//increment to get back to actual end of number string
+						left++;
+						
+						//add parenthesis to left of number
+						mathInput.insert(mathInput.begin() + left, '(');
+
+						//break
+						break;
+					}
+
+					//if next character is a parenthesis, find end of parenthesis pair, and add parenthesis to left
+					if (charInString(mathInput[left], rightParenthesis)) {
+
+						//find and return index of where end of parenthesis is
+						left = findEndParenthesisLeft(left, mathInput);
+
+						//then add parenthesis to left of where end of parenthesis pair is
+						mathInput.insert(mathInput.begin() + left, '(');
+
+						//break
+						break;
+					}
+
+					//decrement left to find number or parenthesis
+					left--;
+				}
+
+				//then check right
+
+				//add two to account for added left parenthesis
+				int right = j + 2;
+				while (right <= mathInput.length()) {
+
+					//if next character is a number add parenthesis to right
+					if (charInString(mathInput[right], listOfNumbers)) {
+
+						//increment right to check value next to found number
+						right++;
+
+						//keep checking right to see if number continues
+						while (right <= mathInput.length()) {
+
+							//if next char is not in list of numbers or decimal, break
+							if (!charInString(mathInput[right], listOfNumbers + ".")) {
+								break;
+							}
+
+							//move to next char
+							right++;
+						}
+
+						//increment to get back to actual end of number string
+						right--;
+
+						//add parenthesis to right of number
+						mathInput.insert(mathInput.begin() + right + 1, ')');//adds to right + 1 to put brace on right side of char
+
+						//break
+						break;
+					}
+
+					//if next character is a parenthesis, find end of parenthesis pair, and add parenthesis to left
+					if (charInString(mathInput[right], leftParenthesis)) {
+
+						//find and return index of where end of parenthesis is
+						right = findEndParenthesisRight(right, mathInput);
+
+						//then add parenthesis to left of where end of parenthesis pair is
+						mathInput.insert(mathInput.begin() + right + 1, ')');//adds to right + 1 to put brace on right side of char
+
+						//break
+						break;
+					}
+
+					//increment right to find number or parenthesis
+					right++;
+				}
+
+				//at end increment j once, to account for added parenthesis on left side of index in string
+				j++;
+			}
+		}
+	}
+
+	return mathInput;
+}
+
+//gets index of string for matching right parenthesis to left parenthesis
+int MathFormat::findEndParenthesisLeft(int index, string input) {
+
+	//move one to left, to move past right brace
+	index--;
+
+	//scan for end brace
+	while (index >= 0) {
+
+		//if left parenthesis is found return index
+		if (charInString(input[index], leftParenthesis))
+			return index;
+
+		//if right parenthesis is found, find matching left parenthesis
+		if (charInString(input[index], rightParenthesis))
+			index = findEndParenthesisLeft(index, input);
+
+		//do nothing for any other characters
+
+		//decrement index and keep scanning
+		index--;
+	}
+
+	//if finishes loop return index
+	return index;
+}
+
+//gets index of string for matching left parenthesis to right parenthesis
+int MathFormat::findEndParenthesisRight(int index, string input) {
+
+	//move one to right, to move past left brace
+	index++;
+
+	//scan for end brace
+	while (index <= input.length()) {
+
+		//if right parenthesis is found return index
+		if (charInString(input[index], rightParenthesis))
+			return index;
+
+		//if left parenthesis is found, find matching right parenthesis
+		if (charInString(input[index], leftParenthesis))
+			index = findEndParenthesisRight(index, input);
+
+		//do nothing for any other characters
+
+		//increment index and keep scanning
+		index++;
+	}
+
+	//if finishes loop return index
+	return index;
 }

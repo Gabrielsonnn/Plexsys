@@ -19,14 +19,14 @@ public:
 	//function to remove all spaces from string, and returns wether valid or not.
 	bool removeSpaces(string*);
 
-	//function to correctly add parenthesis to a math forumla in order to forgoe oder of operation
+	//function to correctly add parenthesis to a math forumla in order to forgoe order of operation
 	string parenthesize(string);
 
 private:
 	
 	
 	string listOfNumbers = "0123456789";
-	string listOfValidOperations = "+-*/^%";
+	string listOfValidOperations = "^*/%+-";
 	string leftParenthesis = "([{";
 	string rightParenthesis = "}])";
 	string listOfParenthesis = leftParenthesis + rightParenthesis;
@@ -40,6 +40,9 @@ private:
 	bool validCharacters(string);
 	bool matchingParenthesis(string);
 	bool validOperations(string);
+
+	int findEndParenthesisLeft(int, string);
+	int findEndParenthesisRight(int, string);
 };
 
 #endif // !MATHFORMAT_H

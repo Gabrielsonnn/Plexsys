@@ -12,7 +12,7 @@ namespace UnitTest
 		MathFormat MF;
 		TEST_METHOD(CorrectTest1)
 		{
-			std::string mathInput1 = "1/2*3+{4+5}+6 + [7-8]+(9.+10)";
+			std::string mathInput1 = "1/2*3+{4+5}-([{6}]) + [7^8]+(9.05+10)";
 
 			Assert::AreEqual(1, MF.errorCheck(mathInput1));
 
@@ -36,7 +36,7 @@ namespace UnitTest
 
 		TEST_METHOD(CorrectTest4)
 		{
-			std::string mathInput1 = "({[8+5]})";
+			std::string mathInput1 = "({[8^7]})";
 
 			Assert::AreEqual(1, MF.errorCheck(mathInput1));
 
@@ -102,6 +102,22 @@ namespace UnitTest
 		TEST_METHOD(IncorrectParTest3)
 		{
 			std::string mathInput2 = "(5+5-](4-4)";
+
+			Assert::AreEqual(-2, MF.errorCheck(mathInput2));
+
+		}
+
+		TEST_METHOD(IncorrectParTest4)
+		{
+			std::string mathInput2 = "[5+5/()](4^4)";
+
+			Assert::AreEqual(-2, MF.errorCheck(mathInput2));
+
+		}
+
+		TEST_METHOD(IncorrectParTest5)
+		{
+			std::string mathInput2 = "{[()]}";
 
 			Assert::AreEqual(-2, MF.errorCheck(mathInput2));
 
@@ -182,6 +198,15 @@ namespace UnitTest
 			Assert::AreEqual((string)"4+4", mathInput1);
 		}
 
+		TEST_METHOD(RemoveSpace3)
+		{
+			std::string mathInput1 = "1 / 2 * 3 + { 4 +    5 } + 6  +  [ 7 -    8 ] + (9.25   + 10)";
+
+			MF.removeSpaces(&mathInput1);
+
+			Assert::AreEqual((string)"1/2*3+{4+5}+6+[7-8]+(9.25+10)", mathInput1);
+		}
+
 		TEST_METHOD(RemoveSpaceError1)
 		{
 			std::string mathInput1 = "4 4";
@@ -203,5 +228,60 @@ namespace UnitTest
 			Assert::AreEqual(false, MF.removeSpaces(&mathInput1));
 		}
 
+		TEST_METHOD(RemoveSpaceError4)
+		{
+			std::string mathInput1 = "9. 51 + 5";
+
+			Assert::AreEqual(false, MF.removeSpaces(&mathInput1));
+		}
+
+	};
+
+	TEST_CLASS(AddParenthesis)
+	{
+	public:
+		MathFormat MF;
+
+		TEST_METHOD(AddPar1)
+		{
+			std::string mathInput1 = "4+4";
+
+			Assert::AreEqual((string)"(4+4)", MF.parenthesize(mathInput1));
+		}
+
+		TEST_METHOD(AddPar2)
+		{
+			std::string mathInput1 = "4837624+412312";
+
+			Assert::AreEqual((string)"(4837624+412312)", MF.parenthesize(mathInput1));
+		}
+
+		TEST_METHOD(AddPar3)
+		{
+			std::string mathInput1 = "(44.23+867)*[23]^9.567";
+
+			Assert::AreEqual((string)"(((44.23+867))*([23]^9.567))", MF.parenthesize(mathInput1));
+		}
+
+		TEST_METHOD(AddPar4)
+		{
+			std::string mathInput1 = "{[(4)]}+2";
+
+			Assert::AreEqual((string)"({[(4)]}+2)", MF.parenthesize(mathInput1));
+		}
+
+		TEST_METHOD(AddPar5)
+		{
+			std::string mathInput1 = "4+(2)";
+
+			Assert::AreEqual((string)"(4+(2))", MF.parenthesize(mathInput1));
+		}
+
+		TEST_METHOD(AddPar6)
+		{
+			std::string mathInput1 = "4+5*3-2";
+
+			Assert::AreEqual((string)"((4+(5*3))-2)", MF.parenthesize(mathInput1));
+		}
 	};
 }

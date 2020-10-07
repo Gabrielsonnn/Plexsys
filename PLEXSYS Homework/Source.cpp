@@ -10,14 +10,16 @@ using namespace std;
 -secondary way of multiplication?? 2(4+5)
 -dealing with floats
 -specific char for where error occured.
-
+-check if linked list has data leak
  */
 
 //main entry point for application
 int main() {
 
-	//instantiate custom class to handle io operations
+	//instantiate class to handle io operations
 	ioControl IO;
+
+	//instantiate class to error check and format math input
 	MathFormat MF;
 
 	//declares string pointer to hold input of math equation
@@ -26,21 +28,23 @@ int main() {
 		//uses io class to get input from user and stores it in math input
 		IO.Inputstr(&mathInput, "Please input the math eqution you would like solved?\n");
 
-		int correct = -4;
+		int correct;
 
-		if (MF.removeSpaces(&mathInput)) {
-
-			 correct = MF.errorCheck(mathInput);
+		if (!MF.removeSpaces(&mathInput)) {
+			correct = -4; 
+		}
+		else {
+			correct = MF.errorCheck(mathInput);
 		}
 
-		/*BinaryTree<int> bt;
+		string parInput = "";
 
-		bt.insertNode(5);
-		bt.insertNode(0);
+		//if passed all error checking parenthesize math input
+		if (correct == 1) {
+			parInput = MF.parenthesize(mathInput);
+		}
 
-		bt.preorderPrint();*/
-
-		cout << "Input: " << mathInput << endl;
+		cout << "Input: " << parInput << endl;
 		cout << "Ouput: " << correct << endl;
 	}
 }
