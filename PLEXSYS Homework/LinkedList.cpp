@@ -1,3 +1,4 @@
+//Developer: Gabriel Johnson
 
 #include "LinkedList.h"
 
@@ -140,6 +141,7 @@ void DoublyLinkedList<T>::sortList() {
 	}
 }
 
+//swaps data for two nodes
 template<class T>
 void DoublyLinkedList<T>::swapData(DLLNode<T> *node1, DLLNode<T> *node2) {
 	T tmpT;
@@ -149,6 +151,7 @@ void DoublyLinkedList<T>::swapData(DLLNode<T> *node1, DLLNode<T> *node2) {
 	node2->info = tmpT;
 }
 
+//gets the nth node from the linked list
 template<class T>
 T DoublyLinkedList<T>::getNthNode(int n) {
 	current = head;

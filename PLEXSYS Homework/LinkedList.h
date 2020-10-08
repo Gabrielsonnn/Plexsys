@@ -1,3 +1,5 @@
+//Developer: Gabriel Johnson
+
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
@@ -36,6 +38,15 @@ public:
 		tail = nullptr;
 		current = nullptr;
 		length = 0;
+	}
+	
+	//destructor for deleting all nodes within the doubly linked list
+	~DoublyLinkedList() {
+		if (!this->isEmpty()) {
+			while (head == nullptr) {
+				deleteTail();
+			}
+		}
 	}
 
 	int getLength() { return length; }//gets length

@@ -1,3 +1,5 @@
+//Developer: Gabriel Johnson
+
 #pragma once
 #include<iomanip>
 #include<iostream>
@@ -121,4 +123,30 @@ void ioControl::InputCheck(int *input, string question, int greaterThan, int les
 		if (cont == false)
 			Output(errorMessage);//outputs error message
 	}
+}
+
+//function for printing out errors messsages, and specifying where the error occured.
+void ioControl::printError(string error, int charLocation, string mathInput) {
+	
+	//print out error message
+	cout << endl << "ERROR: " << error << endl;
+
+	//print out input
+	cout << mathInput << endl;
+
+	//print out where occured
+	for (int i = 0; i <= charLocation; i++) {
+		
+		//if error occured print out carrot
+		if (i == charLocation) {
+			cout << '^';
+		}
+		//if error didn't occur yet, print an empty space
+		else {
+			cout << ' ';
+		}
+	}
+
+	//add two new lines
+	cout << endl << endl;
 }

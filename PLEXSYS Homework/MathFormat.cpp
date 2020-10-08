@@ -1,3 +1,5 @@
+//Developer: Gabriel Johnson
+
 #include "MathFormat.h"
 
 MathFormat::MathFormat()
@@ -10,31 +12,29 @@ MathFormat::~MathFormat()
 
 
 //checks math input for any and all errors with the input
-int MathFormat::errorCheck(string mathInput)
+int MathFormat::errorCheck(string mathInput, int *charLocation)
 {
 	//checks that all characters are valid within the string
-	if (validCharacters(mathInput) == false) {
+	if (validCharacters(mathInput, charLocation) == false) {
 		return -1;
 	}
 
 	//verifies that all parenthesis have matching parenthesis
-	if (matchingParenthesis(mathInput) == false) {
+	if (matchingParenthesis(mathInput, charLocation) == false) {
 		return -2;
 	}
 
 	//checks that all operations have number or parenthesis on either side
-	if (validOperations(mathInput) == false) {
+	if (validOperations(mathInput, charLocation) == false) {
 		return -3;
 	}
-
-	//secondary way of multiplication?? 2(4+5)
 
 	//if passed all tests return true
 	return 1;
 }
 
 //function to verify all characters within string are valid
-bool MathFormat::validCharacters(string mathInput) {
+bool MathFormat::validCharacters(string mathInput, int* charLocation) {
 
 	//boolean to keep track if input character matches one character from list of valid characters
 	bool match = false;
@@ -46,8 +46,14 @@ bool MathFormat::validCharacters(string mathInput) {
 		match = charInString(mathInput[i], listOfValidCharacters);
 
 		//if no match found return false, else check next char
-		if (match == false)
+		if (match == false) {
+
+			//set char location equal to i, to capture where error occurred
+			*charLocation = i;
+
+			//return false
 			return false;
+		}
 	}
 
 	//if made through for loop return true;
@@ -55,7 +61,7 @@ bool MathFormat::validCharacters(string mathInput) {
 }
 
 //determines if all parenthesis are matching and that there are no empty braces
-bool MathFormat::matchingParenthesis(string mathInput) {
+bool MathFormat::matchingParenthesis(string mathInput, int* charLocation) {
 	
 	//instantiates doubly linked list
 	DoublyLinkedList<char> DL;
@@ -105,11 +111,14 @@ bool MathFormat::matchingParenthesis(string mathInput) {
 						error = false;//no error
 					break;
 				}
-				//if char popped of stack isnt reverse of ch than errror
-				if (error == true)
+				//if char popped of stack isnt reverse of ch than error
+				if (error == true) {
+					*charLocation = i;//set char location equal to i, to capture where error occurred
 					return false;//returns error (Mismatched braces)
+				}
 			}
 			else {//else stack is empty
+				*charLocation = i;//set char location equal to i, to capture where error occurred
 				return false;//returns error (Mismatched braces)
 			}
 
@@ -135,6 +144,7 @@ bool MathFormat::matchingParenthesis(string mathInput) {
 			}
 
 			if (error == true) {
+				*charLocation = i;//set char location equal to i, to capture where error occurred
 				return false;//returns error (Empty Braces)
 			}
 		}
@@ -146,13 +156,14 @@ bool MathFormat::matchingParenthesis(string mathInput) {
 	//if stack is empty after end of string return success
 	if (DL.isEmpty())
 		return true;
-	else
-		//otherwise returns error (Mismatched braces)
-		return false;
+	else {
+		*charLocation = mathInput.length() - 1;//set char location equal to end of string since no closing brace was found.
+		return false;//otherwise returns error (Mismatched braces)
+	}
 }
 
 //determines if a the string has valid usage of operations within it. eg 4+4 not 4++4
-bool MathFormat::validOperations(string mathInput) {
+bool MathFormat::validOperations(string mathInput, int* charLocation) {
 
 	//loop through string to find all operations
 	for (int i = 0; i < mathInput.length(); i++) {
@@ -160,8 +171,12 @@ bool MathFormat::validOperations(string mathInput) {
 		//if character matches valid operation, check to make sure operation is used correctly
 		if (charInString(mathInput[i], listOfValidOperations)) {
 
-			//check to make sure operation is not at start or end of math input
+			//check to make sure operation is not at start or end of math input, if it is throw error
 			if (i == 0 || i == (mathInput.length() - 1)) {
+
+				//set char location equal to i, to capture where error occurred
+				*charLocation = i;
+
 				//if it is return false
 				return false;
 			}
@@ -173,49 +188,91 @@ bool MathFormat::validOperations(string mathInput) {
 				bool leftValue = false;
 				bool rightValue = false;
 
-				//first check left
+				//first check left side
+
+				//set left to i - 1 to check immediate char to the left
 				int left = i - 1;
+
+				//keep scanning left until number, brace, or invalid character found
 				while (left >= 0) {
+
+					//check if next char is number, or right brace, if it is set flag value to true and break
 					if (charInString(mathInput[left], listOfNumbers + rightParenthesis)) {
+
+						//set flag value to true
 						leftValue = true;
+
+						//break out of loop, then check right
 						break;
 					}
 
+					//check if next char is an invalid character
 					if (charInString(mathInput[left], listOfValidOperations + leftParenthesis)) {
+						//set char location equal to i, to capture where error occurred
+						*charLocation = i;
+
+						//return false, because of error
 						return false;
 					}
 
+					//decrement left to keep scanning for next character
 					left--;
 				}
 
-				//then check right
+				//check right side
+
+				//set right to i + 1 to check immediate char to the right
 				int right = i + 1;
+
+				//keep scanning right until number, brace, or invalid character found
 				while (right <= mathInput.length()) {
+
+					// check if next char is number, or left brace, if it is set flag value to true and break
 					if (charInString(mathInput[right], listOfNumbers + leftParenthesis)) {
+
+						//set flag value to true
 						rightValue = true;
+
+						//break
 						break;
 					}
 
+					//check if next char is an invalid character.
 					if (charInString(mathInput[right], listOfValidOperations + rightParenthesis)) {
+
+						//set char location equal to i, to capture where error occurred
+						*charLocation = i;
+
+						//return false, because of error
 						return false;
 					}
 
+					//increment right to keep scanning for next character
 					right++;
 				}
 				
 				//if right or left value are still false, then no number or parentheses was ever hit
 				if (rightValue == false || leftValue == false) {
+
+					//set char location equal to i, to capture where error occurred
+					*charLocation = i;
+
+					//return false, because of error
 					return false;
+				}
+				else {
+					//no error occured, move to next operation in math input
 				}
 			}
 		}
 	}
+
 	//if it made it through for loop, the string is valid, return true
 	return true;
 }
 
 //function that removes all unneccesary spaces within a function and returns false if there is a space inbetween two numbers.
-bool MathFormat::removeSpaces(string *mathInput) {
+int MathFormat::removeSpaces(string *mathInput, int* charLocation) {
 
 	//iterate through math input to find all spaces
 	for (int i = 0; i < mathInput->length(); i++) {
@@ -282,23 +339,23 @@ bool MathFormat::removeSpaces(string *mathInput) {
 
 					//if number right aswell, then there is a number to left and right of space, thus invalid syntax
 					if (numberRight == true) {
+						*charLocation = i;//set char location equal to i, to capture where error occurred
 						//return false
-						return false;
+						return -4;
 					}
 				}
-				//if not both number left and right then space is okay to be removed
-				//remove space
+
+				//if not both a number left and right then space is okay to be removed, remove space
 				mathInput->erase(mathInput->begin() + i);
+
+				//decrement i to account for removed character
 				i--;
-				continue;
 			}
 		}
-		else {
-			//do nothing
-		}
 	}
+
 	//if made it through for loop, string is valid and has no #_#
-	return true;
+	return 1;
 }
 
 //function to test wethere there is a specific char within a string
@@ -393,7 +450,7 @@ string MathFormat::parenthesize(string mathInput)
 						right++;
 
 						//keep checking right to see if number continues
-						while (right <= mathInput.length()) {
+						while (right < mathInput.length()) {
 
 							//if next char is not in list of numbers or decimal, break
 							if (!charInString(mathInput[right], listOfNumbers + ".")) {
